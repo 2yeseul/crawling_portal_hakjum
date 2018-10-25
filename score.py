@@ -1,26 +1,42 @@
-# C:\Users\vdiuser\Downloads\chromedriver_win32
+from flask import Flask
+from flask import render_template, request, send_file
 from selenium import webdriver
+import  time
 
-driver = webdriver.Chrome('C:\chromedriver.exe')
-driver.implicitly_wait(5)
+app = Flask(__name__)
 
-driver.get('https://acm.sungshin.ac.kr/proweb/index1280.jsp')
-#driver.switch_to_frame('body_Frame')
-#driver.switch_to_frame(driver.find_element_by_tag_name('body_frame'))
-#print('enter the id and pw')
-#user_id = input()
-#user_pw = input()
-#driver.find_element_by_xpath('//*[@id="saveId"]').click()
-driver.find_element_by_name('userId').send_keys('20152917')
-driver.find_element_by_name('passwd').send_keys('skdisk17~')
+#@app.route('/')
+#def index() :
+#    return render_template('index.html')
+@app.route('/')
+def getInfo() :
+    return render_template('index.html')
 
-driver.find_element_by_xpath('/html/body/form/table[1]/tbody/tr/td[3]/table/tbody/tr[2]/td[5]/img').click()
-#driver.find_element_by_xpath('//*[@id="homeLink"]').click()
+@app.route('/result',methods = ['POST','GET'])
+def result():
+    if request.method == 'POST':
+        #print(id)
+        userid = request.form['id']
+        userpw =request.form['pw']
+        from selenium import webdriver
+        import time
+        # C:\IEDriverServer.exe
+        driver = webdriver.Ie('C:\IEDriverServer.exe')
+        driver.implicitly_wait(5)
+        driver.get('https://acm.sungshin.ac.kr/proweb/index1280.jsp')
+        driver.find_element_by_xpath('//*[@id="saveId"]').click()
+        driver.find_element_by_name('userId').send_keys(userid)
+        driver.find_element_by_name('passwd').send_keys(userpw)
+        driver.find_element_by_xpath('/html/body/form/table[1]/tbody/tr/td[3]/table/tbody/tr[2]/td[5]/img').click()
+        driver.switch_to_frame('leftFrame')
+        driver.find_element_by_xpath('//*[@id="parent2_3"]').click()
+        driver.find_element_by_xpath('//*[@id="subMenu21"]').click()
+        time.sleep(10)
+        driver.save_screenshot("score.png")
 
-driver.switch_to_frame('leftFrame')
-driver.find_element_by_xpath('//*[@id="parent2_3"]').click()
-#driver.switch_to_frame('session_frame')
-#driver.switch_to_frame('receiver_frame')
-#receiver_frame
+        return send_file('score.png', mimetype= 'image/png')
+        #return render_template('index.html', id = id)
 
-driver.find_element_by_xpath('//*[@id="subMenu21"]').click()
+if __name__ == '__main__':
+    app.run(debug = True)
+
